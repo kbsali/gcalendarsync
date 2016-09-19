@@ -2,10 +2,15 @@
 //
 // See https://github.com/Davepar/gcalendarsync for instructions on setting this up.
 //
+// Changelog (@kbsali) : the calendarIds objects allows you to set multiple calendars sync based on the sheet's names
 
-// Set this value to match your calendar!!!
+// Set this value to match your calendarS!!!
 // Calendar ID can be found in the "Calendar Address" section of the Calendar Settings.
-var calendarId = 'YOUR CALENDAR ID HERE';
+var calendarIds = {
+  'sheet1': 'CALENDAR_ID_1@group.calendar.google.com',
+  'sheet2': 'CALENDAR_ID_2@group.calendar.google.com',
+  'sheet2': 'CALENDAR_ID_3@group.calendar.google.com'
+};
 
 var titleRow = ['Title', 'Description', 'Location', 'Start Time', 'End Time', 'All Day Event', 'Id'];
 var fields = titleRow.map(function(entry) {return entry.toLowerCase().replace(/ /g, '');});
@@ -108,9 +113,17 @@ function errorAlert(msg, evt, ridx) {
   }
 }
 
+// Get active spreadsheet's calendarId
+function getCalendarId() {
+  var sheetName = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getName();
+
+  return calendarIds[sheetName];
+}
+
 // Synchronize from calendar to spreadsheet.
 function syncFromCalendar() {
   // Get calendar and events
+  var calendarId = getCalendarId();
   var calendar = CalendarApp.getCalendarById(calendarId);
   var calEvents = calendar.getEvents(new Date('1/1/1970'), new Date('1/1/2030'));
 
@@ -186,6 +199,7 @@ function syncFromCalendar() {
 // Synchronize from spreadsheet to calendar.
 function syncToCalendar() {
   // Get calendar and events
+  var calendarId = getCalendarId();
   var calendar = CalendarApp.getCalendarById(calendarId);
   var calEvents = calendar.getEvents(new Date('1/1/1970'), new Date('1/1/2030'));
   var calEventIds = calEvents.map(function(val) {return val.getId()});
